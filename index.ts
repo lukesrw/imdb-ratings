@@ -1,7 +1,9 @@
-const { createReadStream, readFileSync, writeFileSync } = require("fs");
-const csv = require("csv-parser");
-const { join } = require("path");
-const { createInterface } = require("readline");
+import * as csv from "csv-parser";
+import { createReadStream, readFileSync, writeFileSync } from "fs";
+import { join } from "path";
+import { createInterface } from "readline";
+import { IMDbRecord } from "./interfaces/imdb";
+
 const io = createInterface({
     input: process.stdin,
     output: process.stdout
@@ -9,23 +11,27 @@ const io = createInterface({
 
 const ANSWERS_JSON = join(__dirname, "answers.json");
 
-let results = [];
-let type = {};
+let results: IMDbRecord[] = [];
+let type: {
+    [name: string]: IMDbRecord[];
+} = {};
 
 /**
  * Cache from previous answers given
  */
-let answers = {};
+let answers: {
+    [title: string]: {
+        [title: string]: -1 | 1;
+    };
+} = {};
 try {
     answers = JSON.parse(readFileSync(ANSWERS_JSON, "utf-8"));
 } catch (e) {}
 
 /**
- * @param {string} title1 rating1
- * @param {string} title2 rating2
- * @returns {Promise<Boolean>} decision
+ * Prompt the CLI to ask about "title1" vs "title2"
  */
-function ask(title1, title2) {
+function ask(title1: string, title2: string) {
     return new Promise(resolve => {
         /**
          * If this question has been asked before
@@ -49,7 +55,7 @@ function ask(title1, title2) {
             if (!Object.prototype.hasOwnProperty.call(answers, title2)) {
                 answers[title2] = {};
             }
-            answers[title2][title1] = answers[title1][title2] * -1;
+            answers[title2][title1] = (answers[title1][title2] * -1) as -1 | 1;
 
             writeFileSync(ANSWERS_JSON, JSON.stringify(answers));
 
@@ -59,10 +65,9 @@ function ask(title1, title2) {
 }
 
 /**
- * @param {Array<object>} results ratings
- * @returns {Array<object>} sorted results
+ * Sort IMDB records by manual order, then "Your Rating", then "IMDb Rating"
  */
-function sort(results) {
+function sort(results: IMDbRecord[]) {
     return results.sort((rating1, rating2) => {
         /**
          * If manual sort has been given, use this primarily
@@ -94,7 +99,7 @@ function sort(results) {
 }
 
 /**
- * @returns {void}
+ * Save new preferred order into "sorted.json"
  */
 function outputSorted() {
     let type_min = JSON.parse(JSON.stringify(type));
@@ -103,7 +108,9 @@ function outputSorted() {
             Object.prototype.hasOwnProperty.call(type_min, name_min) &&
             typeof name_min === "string"
         ) {
-            type_min[name_min] = type_min[name_min].map(rating => rating.Title);
+            type_min[name_min] = type_min[name_min].map(
+                (rating: IMDbRecord) => rating.Title
+            );
         }
     }
 
@@ -118,8 +125,6 @@ function outputSorted() {
 
 /**
  * Begin process of asking manual sort questions
- *
- * @returns {void}
  */
 async function main() {
     let answer;
