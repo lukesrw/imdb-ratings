@@ -1,0 +1,21 @@
+{
+    "name": "imdb-ratings",
+    "version": "1.0.0",
+    "description": "IMDb Ratings script to manually sort 'Your Ratings' list",
+    "main": "index.js",
+    "scripts": {
+        "build": "node clean && tsc index.ts"
+    },
+    "keywords": [],
+    "author": "Luke Wilson <lukesrw@gmail.com>",
+    "license": "GPL-3.0",
+    "dependencies": {
+        "@types/node": "^14.14.41",
+        "csv-parser": "^3.0.0"
+    },
+    "devDependencies": {},
+    "repository": {
+        "type": "git",
+        "url": "git@personal.github.com:lukesrw/imdb-ratings.git"
+    }
+}
