@@ -16,6 +16,6 @@ In the future I'd like to add a graphic interface, preferable with cover images 
     3. Select "Your Ratings"
     4. Click the three dots on the right of "Your Ratings"
     5. Select "Export"
-    6. Save "`ratings.csv`" into the same directory as "`index.js`"
-2. Type in the console, "`node .`" to run "`index.js`"
+    6. Save "`ratings.csv`" into the same directory as "`index.ts`"
+2. Type in the console, "`npm run script`" to run the script
 3. Follow the prompts, answering "1" or "2" for your preference
