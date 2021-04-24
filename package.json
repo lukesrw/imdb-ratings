@@ -4,7 +4,7 @@
     "description": "IMDb Ratings script to manually sort 'Your Ratings' list",
     "main": "index.js",
     "scripts": {
-        "script": "node clean && tsc index.ts && node ."
+        "script": "npm install && node clean && tsc index.ts && node ."
     },
     "keywords": [],
     "author": "Luke Wilson <lukesrw@gmail.com>",
