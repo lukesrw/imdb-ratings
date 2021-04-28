@@ -24,6 +24,7 @@ let answers: {
         [title: string]: -1 | 1;
     };
 } = {};
+
 try {
     answers = JSON.parse(readFileSync(ANSWERS_JSON, "utf-8"));
 } catch (e) {}
@@ -36,10 +37,7 @@ function ask(title1: string, title2: string) {
         /**
          * If this question has been asked before
          */
-        if (
-            Object.prototype.hasOwnProperty.call(answers, title1) &&
-            Object.prototype.hasOwnProperty.call(answers[title1], title2)
-        ) {
+        if (title1 in answers && title2 in answers[title1]) {
             return resolve(answers[title1][title2]);
         }
 
@@ -47,14 +45,10 @@ function ask(title1: string, title2: string) {
          * Prompt in console for '"Movie 1" (1) or "Movie 2" (2)?'
          */
         return io.question(`"${title1}" (1) or "${title2}" (2)? `, answer => {
-            if (!Object.prototype.hasOwnProperty.call(answers, title1)) {
-                answers[title1] = {};
-            }
+            if (!(title1 in answers)) answers[title1] = {};
             answers[title1][title2] = parseInt(answer, 10) === 1 ? -1 : 1;
 
-            if (!Object.prototype.hasOwnProperty.call(answers, title2)) {
-                answers[title2] = {};
-            }
+            if (!(title2 in answers)) answers[title2] = {};
             answers[title2][title1] = (answers[title1][title2] * -1) as -1 | 1;
 
             writeFileSync(ANSWERS_JSON, JSON.stringify(answers));
@@ -73,11 +67,8 @@ function sort(results: IMDbRecord[]) {
          * If manual sort has been given, use this primarily
          */
         if (
-            Object.prototype.hasOwnProperty.call(answers, rating1.Title) &&
-            Object.prototype.hasOwnProperty.call(
-                answers[rating1.Title],
-                rating2.Title
-            )
+            rating1.Title in answers &&
+            rating2.Title in answers[rating1.Title]
         ) {
             return answers[rating1.Title][rating2.Title];
         }
@@ -104,10 +95,7 @@ function sort(results: IMDbRecord[]) {
 function outputSorted() {
     let type_min = JSON.parse(JSON.stringify(type));
     for (let name_min in type_min) {
-        if (
-            Object.prototype.hasOwnProperty.call(type_min, name_min) &&
-            typeof name_min === "string"
-        ) {
+        if (name_min in type_min && typeof name_min === "string") {
             type_min[name_min] = type_min[name_min].map(
                 (rating: IMDbRecord) => rating.Title
             );
@@ -130,9 +118,9 @@ async function main() {
     let answer;
 
     for (let name in type) {
-        if (Object.prototype.hasOwnProperty.call(type, name)) {
+        if (name in type) {
             for (let i = 0; i < type[name].length; i += 1) {
-                if (Object.prototype.hasOwnProperty.call(type[name], i + 1)) {
+                if (i + 1 in type[name]) {
                     /**
                      * Ask for preference between this item and next
                      */
@@ -173,12 +161,7 @@ createReadStream(join(__dirname, "ratings.csv"))
          * Group into "Title Type", i.e. movie, tvSeries, tvEpisode, etc.
          */
         results.forEach(rating => {
-            if (
-                !Object.prototype.hasOwnProperty.call(
-                    type,
-                    rating["Title Type"]
-                )
-            ) {
+            if (!(rating["Title Type"] in type)) {
                 type[rating["Title Type"]] = [];
             }
             type[rating["Title Type"]].push(rating);
